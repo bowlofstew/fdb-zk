@@ -1,0 +1,21 @@
+dist: trusty
+env:
+  global:
+    - BAZEL=0.28.0
+    - BAZEL_SHA256SUM=95359ac1aafab4898d7b168ee8c0e7a6723a815cb0741d7de95a94912047c652
+before_install:
+  - elapsed() { TZ=UTC printf "Time %(%T)T %s\n" "$SECONDS" "$1"; }
+  - elapsed "before_install"
+  - ci/download_bazel.sh "${BAZEL}" "${BAZEL_SHA256SUM}" ~/bazel
+  - sudo mv ~/bazel /usr/local/bin/bazel
+  - cp ci/bazelrc ~/.bazelrc
+  - elapsed "before_install (done)"
+script:
+  - elapsed "script"
+  - elapsed && bazel build //fdb-zk/...
+  - elapsed "script (done)"
+after_script:
+  - elapsed "after_script"
+  - bazel shutdown
+notifications:
+email: false
